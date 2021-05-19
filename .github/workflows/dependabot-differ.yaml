@@ -1,15 +1,17 @@
 on:
   pull_request:
     branches:
-      - dependabot/*
+      - core
 
 jobs:
   site_diff:
     name: Site Build Difference
     runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'dependabot/')
     steps:
+      - run: echo "${{ github.head_ref }}"
       - name: Checkout Pull Request branch
-        uses: actions/checkout
+        uses: actions/checkout@v2
         with:
           submodules: true
 
@@ -25,9 +27,9 @@ jobs:
           mv _site _site-pr
 
       - name: Checkout default branch
-        uses: actions/checkout
+        uses: actions/checkout@v2
         with:
-          ref: master
+          ref: core
           clean: false
           submodules: true
 
@@ -38,24 +40,27 @@ jobs:
       - name: Compare Built Websites
         id: site-diff
         run: |
-          site_diff=$(diff -rq _site _site-pr)
-          has_changes=$?
+          has_changes=0
+          site_diff=$(diff -r _site-pr _site) || has_changes=$?
 
-          if [[ $has_changes == 1 ]]; then
-            PR_COMMENT=$(cat << EOF
+          if [[ $has_changes == 0 ]]; then
+            PR_COMMENT="
             There were no changes to the code of the compiled website as a result of this Dependabot update.
-            EOF
-            )
+            "
           else
-            PR_COMMENT=$(cat << EOF
+            PR_COMMENT="
             There were changes to the compiled website as a result of this Dependabot update:
 
-            ```diff
+            \`\`\`
             $site_diff
-            ```
-            EOF
-            )
+            \`\`\`
+            "
           fi
+
+          # Replace newlines and other special characters with escaped equivalents
+          PR_COMMENT="${PR_COMMENT//'%'/'%25'}"
+          PR_COMMENT="${PR_COMMENT//$'\n'/'%0A'}"
+          PR_COMMENT="${PR_COMMENT//$'\r'/'%0D'}"
 
           echo "::set-output name=pr-comment::$PR_COMMENT"
           echo "::set-output name=pr-number::$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')"
