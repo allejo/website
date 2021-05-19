@@ -39,7 +39,7 @@ jobs:
         id: site-diff
         run: |
           has_changes=0
-          site_diff=$(diff -rq _site _site-pr || has_changes=$?)
+          site_diff=$(diff -rq _site _site-pr) || has_changes=$?
 
           if [[ $has_changes == 0 ]]; then
             PR_COMMENT="
