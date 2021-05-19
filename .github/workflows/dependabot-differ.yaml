@@ -7,6 +7,7 @@ jobs:
   site_diff:
     name: Site Build Difference
     runs-on: ubuntu-latest
+    if: startsWith('refs/heads/dependabot', github.head_ref)
     steps:
       - name: Checkout Pull Request branch
         uses: actions/checkout@v2
@@ -39,7 +40,7 @@ jobs:
         id: site-diff
         run: |
           has_changes=0
-          site_diff=$(diff -r _site _site-pr) || has_changes=$?
+          site_diff=$(diff -r _site-pr _site) || has_changes=$?
 
           if [[ $has_changes == 0 ]]; then
             PR_COMMENT="
