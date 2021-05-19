@@ -1,0 +1,67 @@
+on:
+  pull_request:
+    branches:
+      - dependabot/*
+
+jobs:
+  site_diff:
+    name: Site Build Difference
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Pull Request branch
+        uses: actions/checkout
+        with:
+          submodules: true
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+          bundler-cache: true
+
+      - name: Build Pull Request Version of Website
+        run: |
+          bundle exec jekyll build
+          mv _site _site-pr
+
+      - name: Checkout default branch
+        uses: actions/checkout
+        with:
+          ref: master
+          clean: false
+          submodules: true
+
+      - name: Build Production Version of Website
+        run: |
+          bundle exec jekyll build
+
+      - name: Compare Built Websites
+        id: site-diff
+        run: |
+          site_diff=$(diff -rq _site _site-pr)
+          has_changes=$?
+
+          if [[ $has_changes == 1 ]]; then
+            PR_COMMENT=$(cat << EOF
+            There were no changes to the code of the compiled website as a result of this Dependabot update.
+            EOF
+            )
+          else
+            PR_COMMENT=$(cat << EOF
+            There were changes to the compiled website as a result of this Dependabot update:
+
+            ```diff
+            $site_diff
+            ```
+            EOF
+            )
+          fi
+
+          echo "::set-output name=pr-comment::$PR_COMMENT"
+          echo "::set-output name=pr-number::$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')"
+
+      - name: comment-pr
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ steps.site-diff.outputs.pr-number}}
+          body: ${{ steps.site-diff.outputs.pr-comment }}
