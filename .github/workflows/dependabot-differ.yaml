@@ -41,7 +41,7 @@ jobs:
           has_changes=0
           site_diff=$(diff -rq _site _site-pr || has_changes=$?)
 
-          if [[ $has_changes == 1 ]]; then
+          if [[ $has_changes == 0 ]]; then
             PR_COMMENT="
             There were no changes to the code of the compiled website as a result of this Dependabot update.
             "
