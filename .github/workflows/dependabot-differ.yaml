@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Pull Request branch
-        uses: actions/checkout
+        uses: actions/checkout@v2
         with:
           submodules: true
 
@@ -25,7 +25,7 @@ jobs:
           mv _site _site-pr
 
       - name: Checkout default branch
-        uses: actions/checkout
+        uses: actions/checkout@v2
         with:
           ref: master
           clean: false
