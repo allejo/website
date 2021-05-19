@@ -7,7 +7,7 @@ jobs:
   site_diff:
     name: Site Build Difference
     runs-on: ubuntu-latest
-    if: startsWith('dependabot/', github.head_ref)
+    if: startsWith(github.head_ref, 'dependabot/')
     steps:
       - run: echo "${{ github.head_ref }}"
       - name: Checkout Pull Request branch
