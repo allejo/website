@@ -42,19 +42,17 @@ jobs:
           site_diff=$(diff -rq _site _site-pr || has_changes=$?)
 
           if [[ $has_changes == 1 ]]; then
-            PR_COMMENT=$(cat << EOF
+            PR_COMMENT="
             There were no changes to the code of the compiled website as a result of this Dependabot update.
-            EOF
-            )
+            "
           else
-            PR_COMMENT=$(cat << EOF
+            PR_COMMENT="
             There were changes to the compiled website as a result of this Dependabot update:
 
-            ```
+            \`\`\`
             $site_diff
-            ```
-            EOF
-            )
+            \`\`\`
+            "
           fi
 
           echo "::set-output name=pr-comment::$PR_COMMENT"
