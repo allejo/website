@@ -27,7 +27,7 @@ jobs:
       - name: Checkout default branch
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: core
           clean: false
           submodules: true
 
