@@ -38,8 +38,8 @@ jobs:
       - name: Compare Built Websites
         id: site-diff
         run: |
-          site_diff=$(diff -rq _site _site-pr)
-          has_changes=$?
+          has_changes=0
+          site_diff=$(diff -rq _site _site-pr || has_changes=$?)
 
           if [[ $has_changes == 1 ]]; then
             PR_COMMENT=$(cat << EOF
@@ -50,7 +50,7 @@ jobs:
             PR_COMMENT=$(cat << EOF
             There were changes to the compiled website as a result of this Dependabot update:
 
-            ```diff
+            ```
             $site_diff
             ```
             EOF
