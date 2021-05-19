@@ -55,6 +55,11 @@ jobs:
             "
           fi
 
+          # Replace newlines and other special characters with escaped equivalents
+          PR_COMMENT="${PR_COMMENT//'%'/'%25'}"
+          PR_COMMENT="${PR_COMMENT//$'\n'/'%0A'}"
+          PR_COMMENT="${PR_COMMENT//$'\r'/'%0D'}"
+
           echo "::set-output name=pr-comment::$PR_COMMENT"
           echo "::set-output name=pr-number::$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')"
 
